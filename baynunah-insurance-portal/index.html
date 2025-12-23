@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Baynunah | Medical Insurance Verification 2026</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --brand-blue: #0b3d91;
+      --brand-green: #2ea44f;
+      --bg: #f7f9fc;
+      --text: #111;
+      --muted: #666;
+      --danger: #b00020;
+    }
+    body { font-family: system-ui, Segoe UI, Arial, sans-serif; background: var(--bg); color: var(--text); margin: 0; }
+    header { background: var(--brand-blue); color: #fff; padding: 1rem; }
+    main { max-width: 960px; margin: 2rem auto; background: #fff; padding: 1.5rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,.06); }
+    h1, h2 { margin: .2rem 0 1rem; }
+    .card { border: 1px solid #e5e7eb; border-radius: 8px; padding: 1rem; margin: 1rem 0; }
+    label { display:block; font-weight:600; margin:.5rem 0 .25rem }
+    input, select, button, textarea { width:100%; padding:.65rem; border:1px solid #d1d5db; border-radius:6px; }
+    input:invalid { border-color: var(--danger); }
+    .row { display:flex; gap:1rem; flex-wrap: wrap; }
+    .col { flex: 1 1 280px; }
+    .btn { background: var(--brand-blue); color:#fff; border:none; cursor:pointer; }
+    .btn.green { background: var(--brand-green); }
+    .btn.muted { background: #555; }
+    .table { width:100%; border-collapse: collapse; margin-top:1rem; }
+    .table th, .table td { padding:.5rem; border-bottom: 1px solid #eee; text-align:left; }
+    .flag-missing { background: #fffce6; }
+    .muted { color: var(--muted); font-size:.9rem; }
+    .error { color: var(--danger); font-weight:600; }
+    footer { margin: 2rem auto; max-width: 960px; color: var(--muted); }
+    .hidden { display:none; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Baynunah Medical Insurance | 2026 Data Verification</h1>
+    <p class="muted">Please verify your and your dependents’ information. Your login is Employee ID + Date of Birth.</p>
+  </header>
+
+  <main>
+    <!-- LOGIN -->
+    <section id="loginSection" class="card">
+      <h2>Login</h2>
+      <form id="loginForm">
+        <div class="row">
+          <div class="col">
+            <label for="employeeId">Employee ID (e.g., BAYN00058)</label>
+            <input id="employeeId" name="employeeId" required pattern="^[A-Za-z0-9]+$" autocomplete="off" />
+          </div>
+          <div class="col">
+            <label for="dob">Date of Birth (DD/MM/YYYY)</label>
+            <input id="dob" name="dob" required placeholder="DD/MM/YYYY" autocomplete="off" />
+          </div>
+        </div>
+        <p class="muted">We will match your DOB against the PRINCIPAL record. Do not share this link.</p>
+        <button class="btn" type="submit">Continue</button>
+        <p id="loginError" class="error hidden"></p>
+      </form>
+    </section>
+
+    <!-- RECORDS -->
+    <section id="recordsSection" class="card hidden">
+      <h2>Your Insurance Records</h2>
+      <p class="muted">Update only the missing or outdated fields. Required: Emirates ID (for UAE residents), Passport Number, Visa Unified Number (UAE visa holders).</p>
+
+      <table class="table" id="recordsTable">
+        <thead>
+          <tr>
+            <th>Relation</th>
+            <th>Member</th>
+            <th>DOB</th>
+            <th>Emirates ID</th>
+            <th>Passport Number</th>
+            <th>Visa Unified Number</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody id="recordsBody"></tbody>
+      </table>
+
+      <div class="row">
+        <div class="col">
+          <button id="saveBtn" class="btn green">Save Updates</button>
+        </div>
+        <div class="col">
+          <button id="logoutBtn" class="btn muted">Logout</button>
+        </div>
+      </div>
+      <p id="saveMsg" class="muted"></p>
+    </section>
+  </main>
+
+  <footer>
+    <p>Designed and Developed by Baynunah HR | IS | 2025</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "name": "baynunah-insurance-api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@azure/functions": "^4.4.0",
+    "axios": "^1.7.7",
+    "msal-node": "^2.6.4"
+  }
+}
