@@ -2,5 +2,13 @@
   "routes": [
     { "route": "/api/*", "allowedRoles": ["anonymous"] }
   ],
-  "navigationFallback": { "rewrite": "/index.html" }
+  "navigationFallback": { "rewrite": "/index.html" },
+  "globalHeaders": {
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "X-XSS-Protection": "1; mode=block",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://graph.microsoft.com",
+    "Permissions-Policy": "geolocation=(), camera=(), microphone=()"
+  }
 }
