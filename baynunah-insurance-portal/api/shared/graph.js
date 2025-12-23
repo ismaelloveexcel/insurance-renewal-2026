@@ -40,8 +40,18 @@ async function getListId(accessToken, siteId) {
   return match.id;
 }
 
+function sanitizeEmployeeId(id) {
+  // Only allow alphanumeric characters for employee ID to prevent injection
+  if (!id || typeof id !== 'string') return null;
+  const sanitized = id.replace(/[^A-Za-z0-9]/g, '');
+  if (sanitized.length === 0 || sanitized.length > 20) return null;
+  return sanitized;
+}
+
 async function getItemsByEmployeeId(accessToken, siteId, listId, employeeId) {
-  const filter = `fields/${STAFF_COLUMN_INTERNAL_NAME} eq '${employeeId}'`;
+  const safeEmployeeId = sanitizeEmployeeId(employeeId);
+  if (!safeEmployeeId) throw new Error('Invalid Employee ID format');
+  const filter = `fields/${STAFF_COLUMN_INTERNAL_NAME} eq '${safeEmployeeId}'`;
   const url = `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${listId}/items?$expand=fields&$filter=${encodeURIComponent(filter)}&$top=500`;
   const { data } = await axios.get(url, { headers: { Authorization: `Bearer ${accessToken}` } });
   return data.value || [];
