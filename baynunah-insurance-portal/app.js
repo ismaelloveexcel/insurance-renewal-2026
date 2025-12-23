@@ -1,6 +1,14 @@
 // app.js
 const apiBase = '/api';
 
+// Validation patterns - centralized for consistency
+const VALIDATION_PATTERNS = {
+  emiratesId: /^[0-9]{10,18}$/,
+  passportNumber: /^[A-Za-z0-9]{5,20}$/,
+  visaUnifiedNumber: /^[0-9]{6,20}$/,
+  employeeId: /^[A-Za-z0-9]+$/
+};
+
 const loginForm = document.getElementById('loginForm');
 const loginError = document.getElementById('loginError');
 const loginSection = document.getElementById('loginSection');
@@ -62,6 +70,39 @@ function showSuccess(element, message) {
   element.classList.add('success');
 }
 
+// Accessible notification for session timeout
+function showSessionWarning() {
+  // Create accessible modal dialog
+  const existingModal = document.getElementById('sessionWarningModal');
+  if (existingModal) existingModal.remove();
+  
+  const modal = document.createElement('div');
+  modal.id = 'sessionWarningModal';
+  modal.setAttribute('role', 'alertdialog');
+  modal.setAttribute('aria-labelledby', 'sessionWarningTitle');
+  modal.setAttribute('aria-describedby', 'sessionWarningDesc');
+  modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:1000;';
+  
+  modal.innerHTML = `
+    <div style="background:#fff;padding:2rem;border-radius:12px;max-width:400px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.15);">
+      <h3 id="sessionWarningTitle" style="color:#b00020;margin:0 0 1rem;">Session Expiring Soon</h3>
+      <p id="sessionWarningDesc" style="color:#666;margin:0 0 1.5rem;">Your session will expire in 10 minutes. Please save your changes to avoid losing data.</p>
+      <button id="dismissSessionWarning" class="btn" style="width:auto;padding:0.75rem 2rem;">OK, Got it</button>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  const dismissBtn = document.getElementById('dismissSessionWarning');
+  dismissBtn.focus();
+  dismissBtn.addEventListener('click', () => modal.remove());
+  
+  // Allow ESC key to dismiss
+  modal.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') modal.remove();
+  });
+}
+
 loginForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   loginError.classList.add('hidden');
@@ -71,7 +112,7 @@ loginForm.addEventListener('submit', async (e) => {
   const dobRaw = document.getElementById('dob').value.trim();
   
   // Validate employee ID format
-  if (!id || !/^[A-Za-z0-9]+$/.test(id)) {
+  if (!id || !VALIDATION_PATTERNS.employeeId.test(id)) {
     showError(loginError, 'Please enter a valid Employee ID (letters and numbers only).');
     return;
   }
@@ -101,6 +142,7 @@ loginForm.addEventListener('submit', async (e) => {
     renderRecords(items);
     loginSection.classList.add('hidden');
     recordsSection.classList.remove('hidden');
+    resetSessionTimeout();
   } catch (err) {
     showError(loginError, err.message || 'Login failed. Please try again.');
   } finally {
@@ -178,14 +220,14 @@ saveBtn.addEventListener('click', async () => {
     const field = el.getAttribute('data-field');
     const value = el.value.trim();
     
-    // Validate inputs before sending
-    if (field === 'emiratesId' && value && !/^[0-9]{10,18}$/.test(value.replace(/\D/g, ''))) {
+    // Validate inputs before sending using centralized patterns
+    if (field === 'emiratesId' && value && !VALIDATION_PATTERNS.emiratesId.test(value.replace(/\D/g, ''))) {
       el.setCustomValidity('Emirates ID must be 10-18 digits');
       hasValidationError = true;
-    } else if (field === 'passportNumber' && value && !/^[A-Za-z0-9]{5,20}$/.test(value)) {
+    } else if (field === 'passportNumber' && value && !VALIDATION_PATTERNS.passportNumber.test(value)) {
       el.setCustomValidity('Passport number must be 5-20 alphanumeric characters');
       hasValidationError = true;
-    } else if (field === 'visaUnifiedNumber' && value && !/^[0-9]{6,20}$/.test(value.replace(/\D/g, ''))) {
+    } else if (field === 'visaUnifiedNumber' && value && !VALIDATION_PATTERNS.visaUnifiedNumber.test(value.replace(/\D/g, ''))) {
       el.setCustomValidity('Visa Unified Number must be 6-20 digits');
       hasValidationError = true;
     } else {
@@ -236,6 +278,7 @@ logoutBtn.addEventListener('click', () => {
   recordsSection.classList.add('hidden');
   loginSection.classList.remove('hidden');
   document.getElementById('employeeId').focus();
+  if (sessionTimeout) clearTimeout(sessionTimeout);
 });
 
 // Session timeout warning
@@ -246,7 +289,7 @@ function resetSessionTimeout() {
     // Warn after 50 minutes (token expires after 60 minutes)
     sessionTimeout = setTimeout(() => {
       if (sessionToken) {
-        alert('Your session will expire in 10 minutes. Please save your changes.');
+        showSessionWarning();
       }
     }, 50 * 60 * 1000);
   }
